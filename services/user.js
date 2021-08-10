@@ -48,7 +48,8 @@ const loginUser = async (data) => {
     if (userInfo.length == 1) {
         const password = userInfo[0]['password'];
         const pwd = data['password']
-        const check = bcrypt.compare(password, pwd)
+        const check = await bcrypt.compare(pwd, password)
+        
         if(check){
 
              const token = jwt.sign(
@@ -77,12 +78,14 @@ const loginUser = async (data) => {
 
 
 const changePassword = async (data) => {
-    const userInfo = userData.filter(user => user.user_email == data['user_email']);
+    const userInfo = await userData.filter(user => user.user_email == data['user_email']);
     const index = userInfo[0]['id'];
     if (userInfo.length == 1) {
         const old_password = data['password'];
         const new_password = data['new_password'];
-        if (bcrypt.compare(old_password, userInfo.password)){
+        const pwd = userInfo[0]['password'];
+        const check = await bcrypt.compare(old_password, pwd)
+        if (check){
             const salt = await bcrypt.genSalt(Number(process.env.BCRYPT_SALT));
             const encrypted_password = await bcrypt.hash(new_password, salt);
             userData[index][password] = data[encrypted_password]
